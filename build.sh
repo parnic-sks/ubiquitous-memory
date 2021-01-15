@@ -83,7 +83,7 @@ make --directory="${HOME}/go/src/github.com/mattermost/mattermost-webapp" \
 # build Mattermost server
 install --directory "${HOME}/go/bin"
 if [ "$(go env GOOS)_$(go env GOARCH)" != 'linux_amd64' ]; then
-	ln --symbolic \
+	ln --symbolic --force \
 		"${HOME}/go/bin/$(go env GOOS)_$(go env GOARCH)" \
 		"${HOME}/go/bin/linux_amd64"
 fi
