@@ -24,6 +24,8 @@ jobs:
           - os: dragonfly
             arch: arm64
           - os: dragonfly
+            arch: mips
+          - os: dragonfly
             arch: mips64
           - os: dragonfly
             arch: mips64le
@@ -35,6 +37,8 @@ jobs:
             arch: s390x
           - os: freebsd
             arch: arm64
+          - os: freebsd
+            arch: mips
           - os: freebsd
             arch: mips64
           - os: freebsd
@@ -47,6 +51,8 @@ jobs:
             arch: s390x
           - os: netbsd
             arch: arm64
+          - os: netbsd
+            arch: mips
           - os: netbsd
             arch: mips64
           - os: netbsd
@@ -59,6 +65,8 @@ jobs:
             arch: s390x
           - os: openbsd
             arch: arm64
+          - os: openbsd
+            arch: mips
           - os: openbsd
             arch: mips64
           - os: openbsd
@@ -73,15 +81,17 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - run: export MATTERMOST_RELEASE="$(grep 'mattermost' dependabot/go.mod | cut -d' ' -f3)"
+      - name: Setup runtime environment vars
+        run: export MATTERMOST_RELEASE="$(grep 'mattermost' dependabot/go.mod | cut -d' ' -f3)"
 
-      - run: 'docker pull "${{ env.DOCKER_IMAGE }}"'
+      - name: Pull docker image
+        run: 'docker pull "${{ env.DOCKER_IMAGE }}"'
 
       - name: Build
         env:
           GOOS: ${{ matrix.os }}
           GOARCH: ${{ matrix.arch }}
-        run: docker run --mount="type=bind,source=${{ env.PWD }},destination=${{ env.DOCKER_PWD }}" --rm=true --tty=true --workdir="${{ env.DOCKER_PWD }}" -e DEBIAN_RELEASE -e MATTERMOST_RELEASE -e GOOS -e GOARCH "${{ env.DOCKER_IMAGE }}" ./build.sh
+        run: docker run --mount="type=bind,source=${{ env.GITHUB_WORKSPACE }},destination=${{ env.DOCKER_PWD }}" --rm=true --tty=true --workdir="${{ env.DOCKER_PWD }}" -e DEBIAN_RELEASE -e MATTERMOST_RELEASE -e GOOS -e GOARCH "${{ env.DOCKER_IMAGE }}" ./build.sh
 
       - name: Tag release
         uses: actions/github-script@v3
@@ -94,7 +104,8 @@ jobs:
               sha: context.sha
             })
 
-      - uses: softprops/action-gh-release@v1
+      - name: Create Github release
+        uses: softprops/action-gh-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
