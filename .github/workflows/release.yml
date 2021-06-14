@@ -97,7 +97,7 @@ jobs:
         with:
           script: |
             const execSync = require('child_process').execSync;
-            const mattermostVersion = execSync('grep \'mattermost\' dependabot/go.mod | cut -d\' \' -f3', { encoding: 'utf-8' });
+            const mattermostVersion = execSync('grep \'mattermost\' dependabot/go.mod | cut -d\' \' -f3', { encoding: 'utf-8' }).trim();
             github.git.createRef({
               owner: context.repo.owner,
               repo: context.repo.repo,
