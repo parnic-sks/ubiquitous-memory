@@ -97,12 +97,17 @@ jobs:
         uses: actions/github-script@v3
         with:
           script: |
-            github.git.createRef({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              ref: 'refs/tags/${{ env.MATTERMOST_RELEASE }}',
-              sha: context.sha
-            })
+            try {
+              github.git.createRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: 'refs/tags/${{ env.MATTERMOST_RELEASE }}',
+                sha: context.sha
+              })
+            } catch (err) {
+              console.log('createRef exception caught:');
+              console.log(err);
+            }
 
       - name: Create Github release
         uses: softprops/action-gh-release@v1
