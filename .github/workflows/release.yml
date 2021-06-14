@@ -94,6 +94,7 @@ jobs:
         run: docker run --mount="type=bind,source=$PWD,destination=${{ env.DOCKER_PWD }}" --rm=true --tty=true --workdir="${{ env.DOCKER_PWD }}" -e DEBIAN_RELEASE -e MATTERMOST_RELEASE -e GOOS -e GOARCH "${{ env.DOCKER_IMAGE }}" ./build.sh
 
       - name: Tag release
+        if: github.ref == 'refs/heads/master'
         uses: actions/github-script@v3
         continue-on-error: true
         with:
@@ -106,6 +107,7 @@ jobs:
             })
 
       - name: Create Github release
+        if: github.ref == 'refs/heads/master'
         uses: softprops/action-gh-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
