@@ -95,19 +95,15 @@ jobs:
 
       - name: Tag release
         uses: actions/github-script@v3
+        continue-on-error: true
         with:
           script: |
-            try {
-              github.git.createRef({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                ref: 'refs/tags/${{ env.MATTERMOST_RELEASE }}',
-                sha: context.sha
-              })
-            } catch (err) {
-              console.log('createRef exception caught:');
-              console.log(err);
-            }
+            github.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: 'refs/tags/${{ env.MATTERMOST_RELEASE }}',
+              sha: context.sha
+            })
 
       - name: Create Github release
         uses: softprops/action-gh-release@v1
