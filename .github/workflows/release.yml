@@ -1,0 +1,62 @@
+name: Package and release
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+env:
+  DEBIAN_RELEASE: buster
+  DOCKER_PWD: /root
+  DOCKER_IMAGE: debian:${{ DEBIAN_RELEASE }}
+  GO_VERSION: 1.15.5
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [dragonfly, freebsd, linux, netbsd, openbsd]
+        include:
+          - os: dragonfly
+            arch: amd64
+          - os: freebsd
+            arch: [ amd64, arm ]
+          - os: linux
+            arch: [ arm, arm64, mips, mips64, mips64le, ppc64, ppc64le, s390x ]
+          - os: netbsd
+            arch: [ amd64, arm ]
+          - os: openbsd
+            arch: [ amd64, arm ]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - run: export MATTERMOST_RELEASE="$(grep 'mattermost' dependabot/go.mod | cut -d' ' -f3)"
+
+      - run: 'docker pull "${DOCKER_IMAGE}"'
+
+      - name: Build
+        env:
+          GOOS: ${{ matrix.os }}
+          GOARCH: ${{ matrix.arch }}
+        run: docker run --interactive=true --mount="type=bind,source=${PWD},destination=${DOCKER_PWD}" --rm=true --tty=true --workdir="${DOCKER_PWD}" -e DEBIAN_RELEASE -e MATTERMOST_RELEASE -e GOOS -e GOARCH "${DOCKER_IMAGE}" ./build.sh
+
+      - name: Tag release
+        uses: actions/github-script@v3
+        with:
+          script: |
+            github.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: "refs/tags/${{ MATTERMOST_RELEASE }}",
+              sha: context.sha
+            })
+
+      - uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          files: |
+            ${{ DOCKER_PWD }}/mattermost-${{ MATTERMOST_RELEASE }}-${{ matrix.os }}-${{ matrix.arch }}.tar.gz
+            ${{ DOCKER_PWD }}/mattermost-${{ MATTERMOST_RELEASE }}-${{ matrix.os }}-${{ matrix.arch }}.tar.gz.sha512sum
