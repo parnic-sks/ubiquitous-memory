@@ -17,37 +17,58 @@ jobs:
     strategy:
       matrix:
         os: [dragonfly, freebsd, linux, netbsd, openbsd]
-        include:
+        arch: [amd64, arm, arm64, mips, mips64, mips64le, ppc64, ppc64le, s390x ]
+        exclude:
           - os: dragonfly
-            arch: amd64
-          - os: freebsd
-            arch: amd64
-          - os: freebsd
             arch: arm
-          - os: linux
-            arch: arm
-          - os: linux
+          - os: dragonfly
             arch: arm64
-          - os: linux
-            arch: mips
-          - os: linux
+          - os: dragonfly
             arch: mips64
-          - os: linux
+          - os: dragonfly
             arch: mips64le
-          - os: linux
+          - os: dragonfly
             arch: ppc64
-          - os: linux
+          - os: dragonfly
             arch: ppc64le
-          - os: linux
+          - os: dragonfly
+            arch: s390x
+          - os: freebsd
+            arch: arm64
+          - os: freebsd
+            arch: mips64
+          - os: freebsd
+            arch: mips64le
+          - os: freebsd
+            arch: ppc64
+          - os: freebsd
+            arch: ppc64le
+          - os: freebsd
             arch: s390x
           - os: netbsd
-            arch: amd64
+            arch: arm64
           - os: netbsd
-            arch: arm
+            arch: mips64
+          - os: netbsd
+            arch: mips64le
+          - os: netbsd
+            arch: ppc64
+          - os: netbsd
+            arch: ppc64le
+          - os: netbsd
+            arch: s390x
           - os: openbsd
-            arch: amd64
+            arch: arm64
           - os: openbsd
-            arch: arm
+            arch: mips64
+          - os: openbsd
+            arch: mips64le
+          - os: openbsd
+            arch: ppc64
+          - os: openbsd
+            arch: ppc64le
+          - os: openbsd
+            arch: s390x
 
     steps:
       - uses: actions/checkout@v2
@@ -60,7 +81,7 @@ jobs:
         env:
           GOOS: ${{ matrix.os }}
           GOARCH: ${{ matrix.arch }}
-        run: docker run --mount="type=bind,source=${PWD},destination=${DOCKER_PWD}" --rm=true --tty=true --workdir="${DOCKER_PWD}" -e DEBIAN_RELEASE -e MATTERMOST_RELEASE -e GOOS -e GOARCH "${DOCKER_IMAGE}" ./build.sh
+        run: docker run --mount="type=bind,source=${{ env.PWD }},destination=${{ env.DOCKER_PWD }}" --rm=true --tty=true --workdir="${{ env.DOCKER_PWD }}" -e DEBIAN_RELEASE -e MATTERMOST_RELEASE -e GOOS -e GOARCH "${{ env.DOCKER_IMAGE }}" ./build.sh
 
       - name: Tag release
         uses: actions/github-script@v3
