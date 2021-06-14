@@ -79,6 +79,8 @@ jobs:
             arch: s390x
 
     steps:
+      - uses: actions/checkout@v2
+
       - name: Setup runtime environment vars
         run: export MATTERMOST_RELEASE="$(grep 'mattermost' dependabot/go.mod | cut -d' ' -f3)"
 
@@ -86,11 +88,10 @@ jobs:
         run: 'docker pull "${{ env.DOCKER_IMAGE }}"'
 
       - name: Build
-        uses: actions/checkout@v2
         env:
           GOOS: ${{ matrix.os }}
           GOARCH: ${{ matrix.arch }}
-        run: docker run --mount="type=bind,source=${{ env.GITHUB_WORKSPACE }},destination=${{ env.DOCKER_PWD }}" --rm=true --tty=true --workdir="${{ env.DOCKER_PWD }}" -e DEBIAN_RELEASE -e MATTERMOST_RELEASE -e GOOS -e GOARCH "${{ env.DOCKER_IMAGE }}" ./build.sh
+        run: docker run --mount="type=bind,destination=${{ env.DOCKER_PWD }}" --rm=true --tty=true --workdir="${{ env.DOCKER_PWD }}" -e DEBIAN_RELEASE -e MATTERMOST_RELEASE -e GOOS -e GOARCH "${{ env.DOCKER_IMAGE }}" ./build.sh
 
       - name: Tag release
         uses: actions/github-script@v3
@@ -109,5 +110,5 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           files: |
-            ${{ env.DOCKER_PWD }}/mattermost-${{ env.MATTERMOST_RELEASE }}-${{ matrix.os }}-${{ matrix.arch }}.tar.gz
-            ${{ env.DOCKER_PWD }}/mattermost-${{ env.MATTERMOST_RELEASE }}-${{ matrix.os }}-${{ matrix.arch }}.tar.gz.sha512sum
+            mattermost-${{ env.MATTERMOST_RELEASE }}-${{ matrix.os }}-${{ matrix.arch }}.tar.gz
+            mattermost-${{ env.MATTERMOST_RELEASE }}-${{ matrix.os }}-${{ matrix.arch }}.tar.gz.sha512sum
