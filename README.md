@@ -1,6 +1,6 @@
 # ubiquitous-memory: [Here be dragons][2]
 
-[![Build Status](https://github.com/SmartHoneybee/ubiquitous-memory/workflows/release/badge.svg)](https://github.com/SmartHoneybee/ubiquitous-memory/actions?query=workflow%3A"release")
+[![Build Status](https://github.com/SmartHoneybee/ubiquitous-memory/actions/workflows/release.yml/badge.svg)](https://github.com/SmartHoneybee/ubiquitous-memory/actions/workflows/release.yml)
 
 [Travis CI][0] recipe that builds [Mattermost][1] for various operating systems and architectures.
 
