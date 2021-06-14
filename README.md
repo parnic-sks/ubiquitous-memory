@@ -4,6 +4,8 @@
 
 [Travis CI][0] recipe that builds [Mattermost][1] for various operating systems and architectures.
 
+Test
+
 [0]: https://travis-ci.org/SmartHoneybee/ubiquitous-memory
 [1]: https://mattermost.com/
 [2]: https://en.wikipedia.org/wiki/Here_be_dragons
