@@ -8,7 +8,7 @@ on:
 env:
   DEBIAN_RELEASE: buster
   DOCKER_PWD: /root
-  DOCKER_IMAGE: debian:${{ env.DEBIAN_RELEASE }}
+  DOCKER_IMAGE: debian:${DEBIAN_RELEASE}
   GO_VERSION: 1.15.5
 
 jobs:
