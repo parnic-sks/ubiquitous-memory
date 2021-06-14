@@ -79,7 +79,8 @@ jobs:
             arch: s390x
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Clone repository
+        uses: actions/checkout@v2
 
       - name: Set environment from runtime properties
         run: echo "MATTERMOST_RELEASE=$(grep 'mattermost' dependabot/go.mod | cut -d' ' -f3)" >> $GITHUB_ENV
