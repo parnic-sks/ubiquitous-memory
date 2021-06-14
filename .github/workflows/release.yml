@@ -8,7 +8,7 @@ on:
 env:
   DEBIAN_RELEASE: buster
   DOCKER_PWD: /root
-  DOCKER_IMAGE: debian:${{ DEBIAN_RELEASE }}
+  DOCKER_IMAGE: debian:${{ env.DEBIAN_RELEASE }}
   GO_VERSION: 1.15.5
 
 jobs:
@@ -34,7 +34,7 @@ jobs:
 
       - run: export MATTERMOST_RELEASE="$(grep 'mattermost' dependabot/go.mod | cut -d' ' -f3)"
 
-      - run: 'docker pull "${DOCKER_IMAGE}"'
+      - run: 'docker pull "${{ env.DOCKER_IMAGE }}"'
 
       - name: Build
         env:
@@ -49,7 +49,7 @@ jobs:
             github.git.createRef({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              ref: "refs/tags/${{ MATTERMOST_RELEASE }}",
+              ref: "refs/tags/${{ env.MATTERMOST_RELEASE }}",
               sha: context.sha
             })
 
@@ -58,5 +58,5 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           files: |
-            ${{ DOCKER_PWD }}/mattermost-${{ MATTERMOST_RELEASE }}-${{ matrix.os }}-${{ matrix.arch }}.tar.gz
-            ${{ DOCKER_PWD }}/mattermost-${{ MATTERMOST_RELEASE }}-${{ matrix.os }}-${{ matrix.arch }}.tar.gz.sha512sum
+            ${{ env.DOCKER_PWD }}/mattermost-${{ env.MATTERMOST_RELEASE }}-${{ matrix.os }}-${{ matrix.arch }}.tar.gz
+            ${{ env.DOCKER_PWD }}/mattermost-${{ env.MATTERMOST_RELEASE }}-${{ matrix.os }}-${{ matrix.arch }}.tar.gz.sha512sum
