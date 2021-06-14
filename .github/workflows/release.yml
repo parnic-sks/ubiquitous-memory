@@ -81,6 +81,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Set environment from runtime properties
+        run: echo "MATTERMOST_RELEASE=$(grep 'mattermost' dependabot/go.mod | cut -d' ' -f3)" >> $GITHUB_ENV
+
       - name: Pull docker image
         run: 'docker pull "${{ env.DOCKER_IMAGE }}"'
 
@@ -88,20 +91,16 @@ jobs:
         env:
           GOOS: ${{ matrix.os }}
           GOARCH: ${{ matrix.arch }}
-        run: |
-          export MATTERMOST_RELEASE="$(grep 'mattermost' dependabot/go.mod | cut -d' ' -f3)"
-          docker run --mount="type=bind,source=$PWD,destination=${{ env.DOCKER_PWD }}" --rm=true --tty=true --workdir="${{ env.DOCKER_PWD }}" -e DEBIAN_RELEASE -e MATTERMOST_RELEASE -e GOOS -e GOARCH "${{ env.DOCKER_IMAGE }}" ./build.sh
+        run: docker run --mount="type=bind,source=$PWD,destination=${{ env.DOCKER_PWD }}" --rm=true --tty=true --workdir="${{ env.DOCKER_PWD }}" -e DEBIAN_RELEASE -e MATTERMOST_RELEASE -e GOOS -e GOARCH "${{ env.DOCKER_IMAGE }}" ./build.sh
 
       - name: Tag release
         uses: actions/github-script@v3
         with:
           script: |
-            const execSync = require('child_process').execSync;
-            const mattermostVersion = execSync('grep \'mattermost\' dependabot/go.mod | cut -d\' \' -f3', { encoding: 'utf-8' }).trim();
             github.git.createRef({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              ref: 'refs/tags/' + mattermostVersion,
+              ref: 'refs/tags/${{ env.MATTERMOST_RELEASE }}',
               sha: context.sha
             })
 
@@ -110,6 +109,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
+          tag_name: ${{ env.MATTERMOST_RELEASE }}
           files: |
-            mattermost-*-${{ matrix.os }}-${{ matrix.arch }}.tar.gz
-            mattermost-*-${{ matrix.os }}-${{ matrix.arch }}.tar.gz.sha512sum
+            mattermost-${{ env.MATTERMOST_RELEASE }}-${{ matrix.os }}-${{ matrix.arch }}.tar.gz
+            mattermost-${{ env.MATTERMOST_RELEASE }}-${{ matrix.os }}-${{ matrix.arch }}.tar.gz.sha512sum
